@@ -215,7 +215,8 @@ class _SearchCommonSettings(BaseSettings):
     vectorization_dimensions: Optional[int] = None
     role_information: str = Field(
         default="You are an AI assistant that helps people find information.",
-        validation_alias="AZURE_OPENAI_SYSTEM_MESSAGE"
+        validation_alias="AZURE_OPENAI_SYSTEM_MESSAGE",
+        exclude=True
     )
 
     @field_validator('include_contexts', mode='before')
