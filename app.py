@@ -45,7 +45,7 @@ def create_app():
     app = Quart(__name__)
     app.register_blueprint(bp)
     app.config["TEMPLATES_AUTO_RELOAD"] = True
-
+    
     @app.before_serving
     async def init():
         try:
@@ -55,35 +55,7 @@ def create_app():
             logging.exception("Failed to initialize CosmosDB client")
             app.cosmos_conversation_client = None
             raise e
-
-    @app.before_request
-    async def check_email_allowlist():
-        """Check if user's email is in the allowed list (if configured)"""
-        # Skip check for static files and root path
-        if request.path.startswith('/assets/') or request.path == '/favicon.ico' or request.path == '/':
-            return None
-
-        # Skip check if auth is disabled
-        if not app_settings.base_settings.auth_enabled:
-            return None
-
-        # Skip check if no allowed emails are configured (allow all authenticated users)
-        allowed_emails = app_settings.base_settings.allowed_emails
-        if not allowed_emails:
-            return None
-
-        # Get user details from request headers
-        authenticated_user = get_authenticated_user_details(request_headers=request.headers)
-        user_email = authenticated_user.get('user_name', '').lower()
-
-        # Check if user email is in the allowed list
-        if user_email and user_email in allowed_emails:
-            return None
-
-        # Access denied
-        logging.warning(f"Access denied for user: {user_email}")
-        return jsonify({"error": "Access denied. Your email is not authorized to use this application."}), 403
-
+    
     return app
 
 
